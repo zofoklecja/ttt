@@ -13,33 +13,35 @@ function Square(props) {
 };
 
 class Board extends React.Component {
-    renderSquare(i) {
+    renderSquare({i, row, column, isWinning}) {
+        const computedClass = isWinning ? 'is-winning' : '';
+        console.log(arguments);
         return (
             <Square
                 value={this.props.squares[i]}
-                onClick={() => {this.handleClick(i)}}
+                onClick={() => {this.props.onClick(i, row, column)}}
+                className={computedClass}
             />
         );
     }
 
     render() {
+        const a = [...Array(3).keys()];
+
         return (
         <div>
-            <div className="board-row">
-            {this.renderSquare(0)}
-            {this.renderSquare(1)}
-            {this.renderSquare(2)}
-            </div>
-            <div className="board-row">
-            {this.renderSquare(3)}
-            {this.renderSquare(4)}
-            {this.renderSquare(5)}
-            </div>
-            <div className="board-row">
-            {this.renderSquare(6)}
-            {this.renderSquare(7)}
-            {this.renderSquare(8)}
-            </div>
+        {
+            a.map((i) => {
+               return( <div className="board-row">
+                    {a.map((j) => {
+                        const index = i * a.length + j;
+                        const isWinning = this.props.winningSquares.includes(index)
+                        return this.renderSquare({index, isWinning});
+                    })}
+                </div>
+               )
+            })
+        }
         </div>
         );
     }
@@ -51,57 +53,102 @@ class Game extends React.Component {
         this.state = {
             history: [{
                 squares: Array(9).fill(null),
+                row: null,
+                col: null,
             }],
+            stepNumber: 0,
+            xIsNext: true,
+            isChrono: true,
+            activeSquares: [],
         };
     }
 
-    handleClick(i) {
-        const history = this.state.history;
+    handleButtonClick() {
+        const currentOrder = this.state.isChrono;
+        const newOrder = !currentOrder;
+
+        this.setState({
+            ...this.state,
+            isChrono: newOrder,
+        });
+    }
+
+    handleSquareClick(i) {
+        const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
 
-        if (calculateWinner(squares) || squares[i]) {
+        if (calculateWinner(squares).winner || squares[i]) {
             return;
         }
 
         squares[i] = this.state.xIsNext ? 'X' : 'O';
         this.setState({
+            ...this.state,
             history: history.concat([{
                 squares,
+                row: Math.floor(i / 3) + 1,
+                column: i % 3 + 1,
             }]),
             xIsNext: !this.state.xIsNext,
+            stepNumber: this.state.stepNumber + 1,
         });
+    }
+
+    jumpTo(move) {
+        this.setState({
+            stepNumber: move,
+            xIsNext: move % 2 === 0,
+        })
     }
 
     render() {
         const history = this.state.history;
-        const current = history[history.length - 1];
-        const winner = calculateWinner(current.squares);
+        const current = history[this.state.stepNumber];
+        debugger;
+        const { winner, winningSquares } = calculateWinner(current.squares);
+
+        let moves = history.map((step, move) => {
+            const desc = move ?
+                `Go to move #${move} (${step.row}, ${step.column})` : 'Go to game start';
+            const computedClass = step.squares === current.squares ? 'active' : '';
+            return (
+                <li key={move}>
+                    <button onClick={()=>this.jumpTo(move)} className={computedClass}>{desc}</button>
+                </li>
+            );
+        });
 
         let status;
         if (winner) {
-            status = 'Winner: ' + winner;
+            status = `Winner: ${winner}`;
         } else {
             status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
         }
+
+        moves = this.state.isChrono ? moves : moves.reverse();
 
         return (
         <div className="game">
             <div className="game-board">
             <Board squares={current.squares}
-                onClick={(i) => this.handleClick(i)}
+                winningSquares={winningSquares}
+                onClick={(i) => this.handleSquareClick(i)}
             />
             </div>
             <div className="game-info">
             <div>{status}</div>
-            <ol>{/* TODO */}</ol>
+            <ol>{moves}</ol>
+            </div>
+            <div className="toggle-button">
+                <button onClick={() => this.handleButtonClick()}>Toggle order</button>
             </div>
         </div>
         );
     }
 }
 
-function calculateWinner(squares) {
+const calculateWinner = (squares) => {
     const lines = [
         [0, 1, 2],
         [3, 4, 5],
@@ -115,11 +162,17 @@ function calculateWinner(squares) {
     for (let i = 0; i < lines.length; i++) {
         const [a, b, c] = lines[i];
         if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a];
+            return {
+                winner: squares[a],
+                winningSquares: lines[i],
+            }
         }
     }
-    return null;
-}
+    return {
+        winner: null,
+        winningSquares: [],
+    }
+};
 
 // ========================================
 
