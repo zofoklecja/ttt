@@ -12,10 +12,19 @@ function Square(props) {
     );
 };
 
+function DrawMessage(props) {
+    if (props.isActive) {
+        return (
+            <div>It's a draw! 😳</div>
+        )
+    } else {
+        return null;
+    }
+}
+
 class Board extends React.Component {
     renderSquare(i, isWinning) {
         const computedClass = isWinning ? 'is-winning' : '';
-        console.log(arguments[0], arguments[1], computedClass);
 
         return (
             <Square
@@ -127,20 +136,21 @@ class Game extends React.Component {
 
         moves = this.state.isChrono ? moves : moves.reverse();
 
+        const isDraw = !current.squares.includes(null) && !winningSquares.length;
         return (
         <div className="game">
             <div className="game-board">
-            <Board squares={current.squares}
-                winningSquares={winningSquares}
-                onClick={(i) => this.handleSquareClick(i)}
-            />
+                <Board squares={current.squares}
+                    winningSquares={winningSquares}
+                    onClick={(i) => this.handleSquareClick(i)}
+                />
             </div>
             <div className="game-info">
-            <div>{status}</div>
-            <ol>{moves}</ol>
-            </div>
-            <div className="toggle-button">
-                <button onClick={() => this.handleButtonClick()}>Toggle order</button>
+                <div>{status}</div>
+                <br/>
+                <DrawMessage isActive={isDraw}/>
+                <ol>{moves}</ol>
+                <button onClick={() => this.handleButtonClick()}>Toggle history order</button>
             </div>
         </div>
         );
