@@ -52,3 +52,7 @@ ol, ul {
 button.active {
   font-weight: bold;
 }
+
+.is-winning {
+  background-color: coral;
+}
