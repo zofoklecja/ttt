@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
@@ -29,7 +29,7 @@ class Board extends React.Component {
         return (
             <Square
                 value={this.props.squares[i]}
-                onClick={() => {this.props.onClick(i)}}
+                onClick={this.props.onClick(i)}
                 isWinningClass={computedClass}
             />
         );
@@ -72,17 +72,16 @@ class Game extends React.Component {
         };
     }
 
-    handleButtonClick() {
+    handleButtonClick = () => {
         const currentOrder = this.state.isChrono;
         const newOrder = !currentOrder;
 
-        this.setState({
-            ...this.state,
-            isChrono: newOrder,
-        });
+        this.setState(state => ({
+            isChrono: newOrder
+        }));
     }
 
-    handleSquareClick(i) {
+    handleSquareClick = (i) => {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
@@ -92,16 +91,15 @@ class Game extends React.Component {
         }
 
         squares[i] = this.state.xIsNext ? 'X' : 'O';
-        this.setState({
-            ...this.state,
+        this.setState(state => ({
             history: history.concat([{
                 squares,
                 row: Math.floor(i / 3) + 1,
                 column: i % 3 + 1,
             }]),
-            xIsNext: !this.state.xIsNext,
-            stepNumber: this.state.stepNumber + 1,
-        });
+            xIsNext: !state.xIsNext,
+            stepNumber: state.stepNumber + 1,
+        }));
     }
 
     jumpTo(move) {
@@ -142,7 +140,7 @@ class Game extends React.Component {
             <div className="game-board">
                 <Board squares={current.squares}
                     winningSquares={winningSquares}
-                    onClick={(i) => this.handleSquareClick(i)}
+                    onClick={this.handleSquareClick(i)}
                 />
             </div>
             <div className="game-info">
