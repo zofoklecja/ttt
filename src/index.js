@@ -76,10 +76,9 @@ class Game extends React.Component {
         const currentOrder = this.state.isChrono;
         const newOrder = !currentOrder;
 
-        this.setState({
-            ...this.state,
-            isChrono: newOrder,
-        });
+        this.setState(state => ({
+            isChrono: newOrder
+        }));
     }
 
     handleSquareClick(i) {
@@ -92,16 +91,15 @@ class Game extends React.Component {
         }
 
         squares[i] = this.state.xIsNext ? 'X' : 'O';
-        this.setState({
-            ...this.state,
+        this.setState(state => ({
             history: history.concat([{
                 squares,
                 row: Math.floor(i / 3) + 1,
                 column: i % 3 + 1,
             }]),
-            xIsNext: !this.state.xIsNext,
-            stepNumber: this.state.stepNumber + 1,
-        });
+            xIsNext: !state.xIsNext,
+            stepNumber: state.stepNumber + 1,
+        }));
     }
 
     jumpTo(move) {
