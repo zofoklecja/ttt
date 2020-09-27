@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
@@ -22,40 +22,35 @@ function DrawMessage(props) {
     }
 }
 
-class Board extends React.Component {
-    renderSquare(i, isWinning) {
+function Board(props) {
+    const a = [...Array(3).keys()];
+
+    const renderSquare = (i, isWinning) => {
         const computedClass = isWinning ? 'is-winning' : '';
 
         return (
             <Square
-                value={this.props.squares[i]}
-                onClick={this.props.onClick(i)}
+                key={i}
+                value={props.squares[i]}
+                onClick={() => {props.onClick(i)}}
                 isWinningClass={computedClass}
             />
-        );
-    }
+        )
+    };
 
-    render() {
-        const a = [...Array(3).keys()];
-
-        return (
-        <div>
-        {
-            a.map((i) => {
-               return( <div className="board-row">
-                    {a.map((j) => {
-                        const index = i * a.length + j;
-                        const isWinning = this.props.winningSquares.includes(index)
-                        return this.renderSquare(index, isWinning);
-                    })}
-                </div>
-               )
-            })
-        }
-        </div>
-        );
-    }
-}
+    return (
+        a.map((i) => {
+            return( <div className="board-row">
+                {a.map((j) => {
+                    const index = i * a.length + j;
+                    const isWinning = props.winningSquares.includes(index)
+                    return renderSquare(index, isWinning);
+                })}
+            </div>
+            )
+        })
+    );
+};
 
 class Game extends React.Component {
     constructor(props) {
@@ -72,7 +67,7 @@ class Game extends React.Component {
         };
     }
 
-    handleButtonClick = () => {
+    handleButtonClick() {
         const currentOrder = this.state.isChrono;
         const newOrder = !currentOrder;
 
@@ -81,7 +76,7 @@ class Game extends React.Component {
         }));
     }
 
-    handleSquareClick = (i) => {
+    handleSquareClick(i) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
@@ -140,7 +135,7 @@ class Game extends React.Component {
             <div className="game-board">
                 <Board squares={current.squares}
                     winningSquares={winningSquares}
-                    onClick={this.handleSquareClick(i)}
+                    onClick={(i) => this.handleSquareClick(i)}
                 />
             </div>
             <div className="game-info">
