@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import Board from "./Board";
 import DrawMessage from "./DrawMessage";
-import Moves from "./Moves";
+import MoveList from "./MoveList";
 import Status from "./Status";
 
 const calculateWinner = (squares) => {
@@ -95,7 +95,7 @@ function Game(props) {
           currentSquares={history[stepNumber].squares}
           winningSquares={winningSquares}
         />
-        <Moves
+        <MoveList
           currentSquares={history[stepNumber].squares}
           history={history}
           isChrono={isChrono}
